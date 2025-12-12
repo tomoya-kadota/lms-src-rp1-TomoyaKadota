@@ -1,6 +1,7 @@
 package jp.co.sss.lms.controller;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +41,16 @@ public class AttendanceController {
 	 * @throws ParseException
 	 */
 	@RequestMapping(path = "/detail", method = RequestMethod.GET)
-	public String index(Model model) {
+	public String index(Integer lmsUserId, Short deleteFlag, Date trainingDate, Model model) {
 
 		// 勤怠一覧の取得
 		List<AttendanceManagementDto> attendanceManagementDtoList = studentAttendanceService
 				.getAttendanceManagement(loginUserDto.getCourseId(), loginUserDto.getLmsUserId());
 		model.addAttribute("attendanceManagementDtoList", attendanceManagementDtoList);
+
+		// 判定結果の取得
+		boolean notEnterFlg = studentAttendanceService.notEnterCount(lmsUserId, deleteFlag, trainingDate);
+		model.addAttribute("notEnterFlg", notEnterFlg);
 
 		return "attendance/detail";
 	}
@@ -113,8 +118,7 @@ public class AttendanceController {
 		List<AttendanceManagementDto> attendanceManagementDtoList = studentAttendanceService
 				.getAttendanceManagement(loginUserDto.getCourseId(), loginUserDto.getLmsUserId());
 		// 勤怠フォームの生成
-		AttendanceForm attendanceForm = studentAttendanceService
-				.setAttendanceForm(attendanceManagementDtoList);
+		AttendanceForm attendanceForm = studentAttendanceService.setAttendanceForm(attendanceManagementDtoList);
 		model.addAttribute("attendanceForm", attendanceForm);
 
 		return "attendance/update";
@@ -130,8 +134,7 @@ public class AttendanceController {
 	 * @throws ParseException
 	 */
 	@RequestMapping(path = "/update", params = "complete", method = RequestMethod.POST)
-	public String complete(AttendanceForm attendanceForm, Model model, BindingResult result)
-			throws ParseException {
+	public String complete(AttendanceForm attendanceForm, Model model, BindingResult result) throws ParseException {
 
 		// 更新
 		String message = studentAttendanceService.update(attendanceForm);

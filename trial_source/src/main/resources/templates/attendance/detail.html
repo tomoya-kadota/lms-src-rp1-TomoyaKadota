@@ -72,7 +72,14 @@
 			</table>
 		</div>
 	</div>
-
+	<script type="text/javascript" th:inline="javascript">
+		window.onload = function () {
+		const notEnterFlg = /*[[${notEnterFlg}]]*/"notEnterFlg"
+          if (notEnterFlg === true) {
+            alert("過去日の勤怠に未入力があります。");
+          }
+        };
+	</script>
 	<script type="text/javascript" th:inline="javascript">
 		$(function() {
 			$("#now").text('現在の時刻は　' + getClock() + '　です。');
@@ -87,6 +94,5 @@
 			return hours + ':' + minutes;
 		}
 	</script>
-
 </body>
 </html>
