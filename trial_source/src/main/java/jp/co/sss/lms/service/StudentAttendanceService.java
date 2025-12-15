@@ -322,12 +322,12 @@ public class StudentAttendanceService {
 	 * @param trainingDate
 	 * @return
 	 */
-	public Boolean notEnterCount(Integer lmsUserId, Short deleteFlag, Date trainingDate) {
+	public Boolean notEnterCount(Integer lmsUserId) {
 
 		// 本日の研修日
-		trainingDate = attendanceUtil.getTrainingDate();
-		Integer count = tStudentAttendanceMapper.notEnterCount(lmsUserId, deleteFlag, trainingDate);
-
+		Date trainingDate = attendanceUtil.getTrainingDate();
+		short deleteFlg = Constants.DB_FLG_FALSE;
+		Integer count = tStudentAttendanceMapper.notEnterCount(lmsUserId, deleteFlg, trainingDate);
 		// 未入力カウント数が0より大きいなら”true”を返す
 		if (count > 0) {
 			return true;
