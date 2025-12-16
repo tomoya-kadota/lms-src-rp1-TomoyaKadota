@@ -72,12 +72,13 @@
 			</table>
 		</div>
 	</div>
+	<!-- 角田智哉 - Task.25-->
 	<script type="text/javascript" th:inline="javascript">
 		window.onload = function () {
-		const notEnterFlg = /*[[${notEnterFlg}]]*/""
-          if (notEnterFlg === true) {
-            alert("過去日の勤怠に未入力があります。");
-          }
+			const notEnterFlg = /*[[${notEnterFlg}]]*/""
+         	 if (notEnterFlg === true) {
+           		 alert("過去日の勤怠に未入力があります。");
+         	 }
         };
 	</script>
 	<script type="text/javascript" th:inline="javascript">

@@ -47,6 +47,7 @@ public class AttendanceController {
 				.getAttendanceManagement(loginUserDto.getCourseId(), loginUserDto.getLmsUserId());
 		model.addAttribute("attendanceManagementDtoList", attendanceManagementDtoList);
 
+		// 角田智哉 - Task.25
 		// 判定結果の取得
 		boolean notEnterFlg = studentAttendanceService.notEnterCount(loginUserDto.getLmsUserId());
 		model.addAttribute("notEnterFlg", notEnterFlg);

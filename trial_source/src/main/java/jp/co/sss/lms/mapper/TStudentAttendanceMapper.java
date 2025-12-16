@@ -65,11 +65,12 @@ public interface TStudentAttendanceMapper {
 	 */
 	Boolean update(TStudentAttendance tStudentAttendance);
 
+	// 角田智哉 - Task.25
 	/**
 	 * @param lmsUserId
 	 * @param deleteFlag
 	 * @param trainingdate
-	 * @return
+	 * @return 未入力件数検索結果
 	 */
 	Integer notEnterCount(Integer lmsUserId, Short deleteFlg, Date trainingDate);
 }

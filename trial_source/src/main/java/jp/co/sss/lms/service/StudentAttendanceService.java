@@ -316,11 +316,10 @@ public class StudentAttendanceService {
 		return messageUtil.getMessage(Constants.PROP_KEY_ATTENDANCE_UPDATE_NOTICE);
 	}
 
+	// 角田智哉 - Task.25
 	/**
-	 * @param lmsUserId
-	 * @param deleteFlag
-	 * @param trainingDate
-	 * @return
+	 * @param lmsUserId ログイン時のユーザーID
+	 * @return 未入力件数判定結果
 	 */
 	public Boolean notEnterCount(Integer lmsUserId) {
 
