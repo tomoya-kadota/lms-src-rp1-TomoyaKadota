@@ -18,8 +18,16 @@ public class DailyAttendanceForm {
 	private String trainingDate;
 	/** 出勤時間 */
 	private String trainingStartTime;
+	/** 出勤時間の「時間」のみ切り分け */
+	private String trainingStartTimeHour;
+	/** 出勤時間の「分」のみ切り分け */
+	private String trainingStartTimeMinute;
 	/** 退勤時間 */
 	private String trainingEndTime;
+	/** 退勤時間の「時間」のみ切り分け */
+	private String trainingEndTimeHour;
+	/** 退勤時間の「分」のみ切り分け */
+	private String trainingEndTimeMinute;
 	/** 中抜け時間 */
 	private Integer blankTime;
 	/** 中抜け時間（画面表示用） */

@@ -209,6 +209,9 @@ public class StudentAttendanceService {
 		attendanceForm.setLeaveFlg(loginUserDto.getLeaveFlg());
 		attendanceForm.setBlankTimes(attendanceUtil.setBlankTime());
 
+		attendanceForm.setTrainingTimeHour(attendanceUtil.setTrainingTimeHour());
+		attendanceForm.setTrainingTimeMinute(attendanceUtil.setTrainingTimeMinute());
+
 		// 途中退校している場合のみ設定
 		if (loginUserDto.getLeaveDate() != null) {
 			attendanceForm.setLeaveDate(dateUtil.dateToString(loginUserDto.getLeaveDate(), "yyyy-MM-dd"));
@@ -222,6 +225,27 @@ public class StudentAttendanceService {
 			dailyAttendanceForm.setTrainingDate(dateUtil.toString(attendanceManagementDto.getTrainingDate()));
 			dailyAttendanceForm.setTrainingStartTime(attendanceManagementDto.getTrainingStartTime());
 			dailyAttendanceForm.setTrainingEndTime(attendanceManagementDto.getTrainingEndTime());
+			// 角田 智哉 Task.26
+			TrainingTime trainingStartTime = new TrainingTime();
+			TrainingTime trainingEndTime = new TrainingTime();
+			trainingStartTime = attendanceUtil.getTrainingStartTimeHM(attendanceManagementDto.getTrainingStartTime());
+			trainingEndTime = attendanceUtil.getTrainingEndTimeHM(attendanceManagementDto.getTrainingEndTime());
+
+			Integer trainingStartTimeHourInteger = trainingStartTime.getHour();
+			Integer trainingStartTimeMinuteInteger = trainingStartTime.getMinute();
+			Integer trainingEndTimeHourInteger = trainingEndTime.getHour();
+			Integer trainingEndTimeMinuteInteger = trainingEndTime.getMinute();
+
+			String trainingStartTimeHour = trainingStartTimeHourInteger.toString();
+			String trainingStartTimeMinute = trainingStartTimeMinuteInteger.toString();
+			String trainingEndTimeHour = trainingEndTimeHourInteger.toString();
+			String trainingEndTimeMinute = trainingEndTimeMinuteInteger.toString();
+
+			dailyAttendanceForm.setTrainingStartTimeHour(trainingStartTimeHour);
+			dailyAttendanceForm.setTrainingStartTimeMinute(trainingStartTimeMinute);
+			dailyAttendanceForm.setTrainingEndTimeHour(trainingEndTimeHour);
+			dailyAttendanceForm.setTrainingEndTimeMinute(trainingEndTimeMinute);
+
 			if (attendanceManagementDto.getBlankTime() != null) {
 				dailyAttendanceForm.setBlankTime(attendanceManagementDto.getBlankTime());
 				dailyAttendanceForm.setBlankTimeValue(

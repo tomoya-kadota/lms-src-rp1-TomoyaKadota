@@ -30,8 +30,7 @@ public class AttendanceUtil {
 	 * @param trainingEndTime   終了時刻
 	 * @return 遅刻早退を判定メソッド
 	 */
-	public AttendanceStatusEnum getStatus(TrainingTime trainingStartTime,
-			TrainingTime trainingEndTime) {
+	public AttendanceStatusEnum getStatus(TrainingTime trainingStartTime, TrainingTime trainingEndTime) {
 		return getStatus(trainingStartTime, trainingEndTime, Constants.SSS_WORK_START_TIME,
 				Constants.SSS_WORK_END_TIME);
 	}
@@ -45,11 +44,10 @@ public class AttendanceUtil {
 	 * @param workEndTime       定時終了時刻
 	 * @return 判定結果
 	 */
-	private AttendanceStatusEnum getStatus(TrainingTime trainingStartTime,
-			TrainingTime trainingEndTime, TrainingTime workStartTime, TrainingTime workEndTime) {
+	private AttendanceStatusEnum getStatus(TrainingTime trainingStartTime, TrainingTime trainingEndTime,
+			TrainingTime workStartTime, TrainingTime workEndTime) {
 		// 定時が不明な場合、NONEを返却する
-		if (workStartTime == null || workStartTime.isBlank() || workEndTime == null
-				|| workEndTime.isBlank()) {
+		if (workStartTime == null || workStartTime.isBlank() || workEndTime == null || workEndTime.isBlank()) {
 			return AttendanceStatusEnum.NONE;
 		}
 		boolean isLate = false, isEarly = false;
@@ -130,6 +128,65 @@ public class AttendanceUtil {
 
 		}
 		return map;
+	}
+
+	/**
+	 * 勤怠入力に必要な「時間」のみを取得
+	 * 
+	 * @return 勤務時間
+	 */
+	public LinkedHashMap<Integer, String> setTrainingTimeHour() {
+		LinkedHashMap<Integer, String> map = new LinkedHashMap<>();
+		map.put(null, "");
+
+		for (Integer i = 0; i < 24;) {
+			String strHour;
+
+			if (i < 10) {
+				strHour = "0" + i;
+			}
+
+			strHour = i.toString();
+			map.put(i, strHour);
+			i++;
+		}
+
+		return map;
+	}
+
+	/**
+	 * 勤怠入力に必要な「分」のみを取得
+	 * 
+	 * @return 勤務分
+	 */
+	public LinkedHashMap<Integer, String> setTrainingTimeMinute() {
+		LinkedHashMap<Integer, String> map = new LinkedHashMap<>();
+		map.put(null, "");
+
+		for (Integer i = 0; i < 60;) {
+			String strMinute;
+
+			if (i < 10) {
+				strMinute = "0" + i;
+			}
+
+			strMinute = i.toString();
+			map.put(i, strMinute);
+			i++;
+		}
+
+		return map;
+	}
+
+	public TrainingTime getTrainingStartTimeHM(String trainingStartTime) {
+		TrainingTime trainingTime = new TrainingTime(trainingStartTime);
+		return trainingTime;
+
+	}
+
+	public TrainingTime getTrainingEndTimeHM(String trainingEndTime) {
+		TrainingTime trainingTime = new TrainingTime(trainingEndTime);
+		return trainingTime;
 	}
 
 	/**
