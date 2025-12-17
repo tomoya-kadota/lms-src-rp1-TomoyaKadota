@@ -144,9 +144,9 @@ public class AttendanceUtil {
 
 			if (i < 10) {
 				strHour = "0" + i;
+			} else {
+				strHour = i.toString();
 			}
-
-			strHour = i.toString();
 			map.put(i, strHour);
 			i++;
 		}
@@ -168,9 +168,9 @@ public class AttendanceUtil {
 
 			if (i < 10) {
 				strMinute = "0" + i;
+			} else {
+				strMinute = i.toString();
 			}
-
-			strMinute = i.toString();
 			map.put(i, strMinute);
 			i++;
 		}
@@ -178,15 +178,17 @@ public class AttendanceUtil {
 		return map;
 	}
 
-	public TrainingTime getTrainingStartTimeHM(String trainingStartTime) {
-		TrainingTime trainingTime = new TrainingTime(trainingStartTime);
-		return trainingTime;
+	public Integer getTrainingTimeHourInteger(String trainingTime) {
+		TrainingTime tTime = new TrainingTime(trainingTime);
+		Integer trainingTimeHourInteger = tTime.getHour();
+		return trainingTimeHourInteger;
 
 	}
 
-	public TrainingTime getTrainingEndTimeHM(String trainingEndTime) {
-		TrainingTime trainingTime = new TrainingTime(trainingEndTime);
-		return trainingTime;
+	public Integer getTrainingTimeMinuteInteger(String trainingTime) {
+		TrainingTime tTime = new TrainingTime(trainingTime);
+		Integer trainingTimeMinuteInteger = tTime.getMinute();
+		return trainingTimeMinuteInteger;
 	}
 
 	/**
