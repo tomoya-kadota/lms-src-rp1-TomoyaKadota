@@ -196,7 +196,7 @@ public class StudentAttendanceService {
 
 	/**
 	 * 勤怠フォームへ設定
-	 *
+	 * 
 	 * @param attendanceManagementDtoList
 	 * @return 勤怠編集フォーム
 	 */
@@ -228,18 +228,20 @@ public class StudentAttendanceService {
 			// 角田 智哉 Task.26
 			String trainingStartTime = attendanceManagementDto.getTrainingStartTime();
 			String trainingEndTime = attendanceManagementDto.getTrainingEndTime();
-
+			// 文字列型、数値型の出勤時をフォームにセット
 			dailyAttendanceForm.setTrainingStartTimeHour(attendanceUtil.getTrainingTimeHourInteger(trainingStartTime));
 			dailyAttendanceForm.setTrainingStartTimeHourValue(
 					String.valueOf(attendanceUtil.getTrainingTimeHourInteger(trainingStartTime)));
+			// 文字列型、数値型の出勤分をフォームにセット
 			dailyAttendanceForm
 					.setTrainingStartTimeMinute(attendanceUtil.getTrainingTimeMinuteInteger(trainingStartTime));
 			dailyAttendanceForm.setTrainingStartTimeMinuteValue(
 					String.valueOf(attendanceUtil.getTrainingTimeMinuteInteger(trainingStartTime)));
-
+			// 文字列型、数値型の退勤時をフォームにセット
 			dailyAttendanceForm.setTrainingEndTimeHour(attendanceUtil.getTrainingTimeHourInteger(trainingEndTime));
 			dailyAttendanceForm.setTrainingEndTimeHourValue(
 					String.valueOf(attendanceUtil.getTrainingTimeHourInteger(trainingEndTime)));
+			// 文字列型、数値型の退勤分をフォームにセット
 			dailyAttendanceForm.setTrainingEndTimeMinute(attendanceUtil.getTrainingTimeMinuteInteger(trainingEndTime));
 			dailyAttendanceForm.setTrainingEndTimeMinuteValue(
 					String.valueOf(attendanceUtil.getTrainingTimeMinuteInteger(trainingEndTime)));
@@ -270,7 +272,7 @@ public class StudentAttendanceService {
 	 * @return 完了メッセージ
 	 * @throws ParseException
 	 */
-	public String update(AttendanceForm attendanceForm) throws ParseException {
+	public List<String> update(AttendanceForm attendanceForm) throws ParseException {
 
 		Integer lmsUserId = loginUserUtil.isStudent() ? loginUserDto.getLmsUserId() : attendanceForm.getLmsUserId();
 
@@ -280,6 +282,8 @@ public class StudentAttendanceService {
 
 		// 入力された情報を更新用のエンティティに移し替え
 		Date date = new Date();
+		// 角田 智哉 Task.27
+		List<String> errorMessages = new ArrayList<>();
 		for (DailyAttendanceForm dailyAttendanceForm : attendanceForm.getAttendanceList()) {
 
 			// 更新用エンティティ作成
@@ -295,34 +299,54 @@ public class StudentAttendanceService {
 					break;
 				}
 			}
+
 			tStudentAttendance.setLmsUserId(lmsUserId);
 			tStudentAttendance.setAccountId(loginUserDto.getAccountId());
 			// 出勤時刻整形
 			TrainingTime trainingStartTime = null;
 			// 角田 智哉 Task.26
-			if (dailyAttendanceForm.getTrainingStartTimeHour() == null
-					|| dailyAttendanceForm.getTrainingStartTimeMinute() == null) {
+			Integer trainingStartTimeHour = dailyAttendanceForm.getTrainingStartTimeHour();
+			Integer trainingStartTimeMinute = dailyAttendanceForm.getTrainingStartTimeHour();
+			// 出勤「時」もしくは「分」が未入力の場合は、空文字を挿入。それ以外は入力パラメータをセット
+			if (trainingStartTimeHour == null || trainingStartTimeMinute == null) {
 				String startTime = "";
 				tStudentAttendance.setTrainingStartTime(startTime);
 			} else {
-				String trainingStartTimeStr = (dailyAttendanceForm.getTrainingStartTimeHour() + ":"
-						+ dailyAttendanceForm.getTrainingStartTimeMinute());
+				String trainingStartTimeStr = (trainingStartTimeHour + ":" + trainingStartTimeMinute);
 				trainingStartTime = new TrainingTime(trainingStartTimeStr);
 				tStudentAttendance.setTrainingStartTime(trainingStartTime.getFormattedString());
+			}
+			// 角田 智哉 Task.27
+			// 出勤時間（時）、出勤時間（分）の一方が入力有り＆もう一方が入力なしの場合、エラーメッセージを追加
+			if ((trainingStartTimeHour == null && trainingStartTimeMinute != null)
+					|| (trainingStartTimeHour != null && trainingStartTimeMinute == null)) {
+				String trainingStartTImeErrorMsg = messageUtil.getMessage(Constants.INPUT_INVALID,
+						new String[] { "出勤時間" });
+				errorMessages.add(trainingStartTImeErrorMsg);
 			}
 
 			// 退勤時刻整形
 			TrainingTime trainingEndTime = null;
+
 			// 角田 智哉 Task.26
-			if (dailyAttendanceForm.getTrainingEndTimeHour() == null
-					|| dailyAttendanceForm.getTrainingEndTimeMinute() == null) {
+			Integer trainingEndTimeHour = dailyAttendanceForm.getTrainingStartTimeHour();
+			Integer trainingEndTimeMinute = dailyAttendanceForm.getTrainingStartTimeHour();
+			// 退勤「時」もしくは「分」が未入力の場合は、空文字を挿入。それ以外は入力パラメータをセット
+			if (trainingEndTimeHour == null || trainingEndTimeMinute == null) {
 				String endTime = "";
 				tStudentAttendance.setTrainingEndTime(endTime);
 			} else {
-				String trainingEndTimeStr = (dailyAttendanceForm.getTrainingEndTimeHour() + ":"
-						+ dailyAttendanceForm.getTrainingEndTimeMinute());
+				String trainingEndTimeStr = (trainingEndTimeHour + ":" + trainingEndTimeMinute);
 				trainingEndTime = new TrainingTime(trainingEndTimeStr);
 				tStudentAttendance.setTrainingEndTime(trainingEndTime.getFormattedString());
+			}
+			// 角田 智哉 Task.27
+			// 出勤時間（時）、出勤時間（分）の一方が入力有り＆もう一方が入力なしの場合、エラーメッセージを追加
+			if ((trainingEndTimeHour == null && trainingEndTimeMinute != null)
+					|| (trainingEndTimeHour != null && trainingEndTimeMinute == null)) {
+				String trainingEndTImeErrorMsg = messageUtil.getMessage(Constants.INPUT_INVALID,
+						new String[] { "退勤時間" });
+				errorMessages.add(trainingEndTImeErrorMsg);
 			}
 			// 中抜け時間
 			tStudentAttendance.setBlankTime(dailyAttendanceForm.getBlankTime());
@@ -335,6 +359,13 @@ public class StudentAttendanceService {
 			}
 			// 備考
 			tStudentAttendance.setNote(dailyAttendanceForm.getNote());
+			// 角田 智哉 Task.27
+			// 100文字以上入力された場合はエラーメッセージを追加
+			if (tStudentAttendance.getNote().length() > 100) {
+				String NoteErrorMsg = messageUtil.getMessage(Constants.VALID_KEY_MAXLENGTH,
+						new String[] { "備考", "100" });
+				errorMessages.add(NoteErrorMsg);
+			}
 			// 更新者と更新日時
 			tStudentAttendance.setLastModifiedUser(loginUserDto.getLmsUserId());
 			tStudentAttendance.setLastModifiedDate(date);
@@ -342,6 +373,11 @@ public class StudentAttendanceService {
 			tStudentAttendance.setDeleteFlg(Constants.DB_FLG_FALSE);
 			// 登録用Listへ追加
 			tStudentAttendanceList.add(tStudentAttendance);
+		}
+		// 角田 智哉 Task.27
+		// 入力エラーがあった場合は、エラーメッセージを返却
+		if (!errorMessages.isEmpty()) {
+			return errorMessages;
 		}
 		// 登録・更新処理
 		for (TStudentAttendance tStudentAttendance : tStudentAttendanceList) {
@@ -353,12 +389,15 @@ public class StudentAttendanceService {
 				tStudentAttendanceMapper.update(tStudentAttendance);
 			}
 		}
-		// 完了メッセージ
-		return messageUtil.getMessage(Constants.PROP_KEY_ATTENDANCE_UPDATE_NOTICE);
+		// 角田 智哉 Task.27
+		// 完了メッセージを返却
+		List<String> completeMessage = new ArrayList<>();
+		completeMessage.add(messageUtil.getMessage(Constants.PROP_KEY_ATTENDANCE_UPDATE_NOTICE));
+		return completeMessage;
 	}
 
-	// 角田智哉 - Task.25
 	/**
+	 * @author 角田智哉 -Task.26
 	 * @param lmsUserId ログイン時のユーザーID
 	 * @return 未入力件数判定結果
 	 */

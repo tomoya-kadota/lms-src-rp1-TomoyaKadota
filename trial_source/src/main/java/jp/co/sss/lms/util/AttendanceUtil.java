@@ -133,12 +133,14 @@ public class AttendanceUtil {
 	/**
 	 * 勤怠入力に必要な「時間」のみを取得
 	 * 
+	 * @author 角田智哉 -Task.26
 	 * @return 勤務時間
 	 */
 	public LinkedHashMap<Integer, String> setTrainingTimeHour() {
 		LinkedHashMap<Integer, String> map = new LinkedHashMap<>();
+		// プルダウンの初期値に空白を設定
 		map.put(null, "");
-
+		// プルダウンに00～23までを設定
 		for (Integer i = 0; i < 24;) {
 			String strHour;
 
@@ -157,12 +159,14 @@ public class AttendanceUtil {
 	/**
 	 * 勤怠入力に必要な「分」のみを取得
 	 * 
+	 * @author 角田智哉 -Task.26
 	 * @return 勤務分
 	 */
 	public LinkedHashMap<Integer, String> setTrainingTimeMinute() {
 		LinkedHashMap<Integer, String> map = new LinkedHashMap<>();
+		// プルダウンの初期値に空白を設定
 		map.put(null, "");
-
+		// プルダウンに00～59までを設定
 		for (Integer i = 0; i < 60;) {
 			String strMinute;
 
@@ -178,15 +182,34 @@ public class AttendanceUtil {
 		return map;
 	}
 
+	/**
+	 * 
+	 * 画面表示用の「時間」のみ切り分けて取得
+	 * 
+	 * @author 角田智哉 -Task.26
+	 * @param trainingTime
+	 * @return 数値型の勤務「時間」
+	 */
 	public Integer getTrainingTimeHourInteger(String trainingTime) {
+		// 現在時刻を取得
 		TrainingTime tTime = new TrainingTime(trainingTime);
+		// Integer型へ格納
 		Integer trainingTimeHourInteger = tTime.getHour();
 		return trainingTimeHourInteger;
 
 	}
 
+	/**
+	 * 画面表示用の「分」のみ切り分けて取得
+	 * 
+	 * @author 角田智哉 -Task.26
+	 * @param trainingTime
+	 * @return 数値型の勤務「分」
+	 */
 	public Integer getTrainingTimeMinuteInteger(String trainingTime) {
+		// 現在時刻を取得
 		TrainingTime tTime = new TrainingTime(trainingTime);
+		// Integer型へ格納
 		Integer trainingTimeMinuteInteger = tTime.getMinute();
 		return trainingTimeMinuteInteger;
 	}

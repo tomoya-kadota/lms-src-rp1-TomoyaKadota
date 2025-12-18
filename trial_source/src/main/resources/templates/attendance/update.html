@@ -21,12 +21,13 @@
 	<div class="row">
 		<div class="bs-component col-sm-12">
 
-			<form th:action="@{/attendance/update}" method="post">
+			<form th:action="@{/attendance/update}" method="post" class="registCheck" onsubmit="return registCheck();">
 				<table class="table table-hover dataTable no-footer">
 					<thead>
 						<tr>
 							<th class="w140">日付</th>
 							<th class="w300">コース内容</th>
+							<!--角田智哉 - Task.26-->
 							<th class="w70" colspan="3">出勤</th>
 							<th class="w70" colspan="3">退勤</th>
 							<th class="w80">中抜け時間</th>
@@ -47,10 +48,7 @@
 								</th:block>
 								<td class="w140">[[${dailyAttendanceForm.dispTrainingDate}]]</td>
 								<td class="w300">[[${dailyAttendanceForm.sectionName}]]</td>
-<!--								<td class="w70">-->
-<!--									<input type="text" th:name="|attendanceList[${stat.index}].trainingStartTime|"-->
-<!--									th:value="${dailyAttendanceForm.trainingStartTime}" class="form-control" />-->
-<!--								</td>-->
+								<!--角田智哉 - Task.26-->
 								<td class="w70">
 									<select th:name="|attendanceList[${stat.index}].trainingStartTimeHour|" class="form-control">
 										<option th:each="trainingStartTimeHour : ${attendanceForm.trainingTimeHour}" th:value="${trainingStartTimeHour.key}" th:inlne="text" class="form-control" 
@@ -76,8 +74,6 @@
 										<option th:each="trainingEndTimeMinute : ${attendanceForm.trainingTimeMinute}" th:value="${trainingEndTimeMinute.key}" th:inlne="text" class="form-control" 
 											th:selected="${trainingEndTimeMinute.key == dailyAttendanceForm.trainingEndTimeMinute}">[[${trainingEndTimeMinute.value}]]</option>
 									</select>
-<!--									<input type="text" th:name="|attendanceList[${stat.index}].trainingEndTime|"-->
-<!--									th:value="${dailyAttendanceForm.trainingEndTime}" class="form-control" />-->
 								</td>
 								<td class="w80">
 									<select th:name="|attendanceList[${stat.index}].blankTime|" class="form-control">
@@ -101,8 +97,24 @@
 					<th:block th:if="${session.loginUserDto.role != '0001'}">
 						<input type="submit" value="戻る" name="indexCompany" class="btn btn-default" />
 					</th:block>
-					<input type="submit" value="更新" name="complete" class="btn btn-info" />
+					<input type="submit" value="更新" name="complete" class="btn btn-info"/>
 				</div>
+<!--				<dialog id="registCheckDialog">-->
+<!--					<form method="Dialog">-->
+<!--						<button type="submit" value="OK"></button>-->
+<!--						<button type="submit" value="キャンセル">キャンセル</button>-->
+<!--					</form>-->
+<!--				</dialog>-->
+    <script>
+      function registCheck() {
+        if (confirm("更新します。よろしいですか？")) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      }
+    </script>
 
 			</form>
 		</div>
