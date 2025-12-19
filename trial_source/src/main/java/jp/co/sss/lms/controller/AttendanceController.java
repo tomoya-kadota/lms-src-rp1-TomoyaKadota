@@ -138,11 +138,12 @@ public class AttendanceController {
 
 		// 更新
 		List<String> message = studentAttendanceService.update(attendanceForm);
-		if (!message.equals(Constants.PROP_KEY_ATTENDANCE_UPDATE_NOTICE)) {
-			// エラー有の場合
-			model.addAttribute("error", message);
+		// 角田 智哉 - Task.27
+		// 完了メッセージが格納されていない場合は、エラーメッセージをスコープに格納し、勤怠情報直接変更画面へ遷移
+		if (!message.contains("勤怠情報の登録が完了しました。")) {
+			return this.update(model.addAttribute("error", message));
 		} else {
-			// エラー無の場合
+			// エラー無の場合は完了メッセージをスコープに格納する
 			model.addAttribute("message", message);
 		}
 		// 一覧の再取得

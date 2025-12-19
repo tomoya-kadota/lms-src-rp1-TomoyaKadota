@@ -208,7 +208,7 @@ public class StudentAttendanceService {
 		attendanceForm.setUserName(loginUserDto.getUserName());
 		attendanceForm.setLeaveFlg(loginUserDto.getLeaveFlg());
 		attendanceForm.setBlankTimes(attendanceUtil.setBlankTime());
-
+		// 角田 智哉 Task.26
 		attendanceForm.setTrainingTimeHour(attendanceUtil.setTrainingTimeHour());
 		attendanceForm.setTrainingTimeMinute(attendanceUtil.setTrainingTimeMinute());
 
@@ -306,7 +306,7 @@ public class StudentAttendanceService {
 			TrainingTime trainingStartTime = null;
 			// 角田 智哉 Task.26
 			Integer trainingStartTimeHour = dailyAttendanceForm.getTrainingStartTimeHour();
-			Integer trainingStartTimeMinute = dailyAttendanceForm.getTrainingStartTimeHour();
+			Integer trainingStartTimeMinute = dailyAttendanceForm.getTrainingStartTimeMinute();
 			// 出勤「時」もしくは「分」が未入力の場合は、空文字を挿入。それ以外は入力パラメータをセット
 			if (trainingStartTimeHour == null || trainingStartTimeMinute == null) {
 				String startTime = "";
@@ -320,17 +320,17 @@ public class StudentAttendanceService {
 			// 出勤時間（時）、出勤時間（分）の一方が入力有り＆もう一方が入力なしの場合、エラーメッセージを追加
 			if ((trainingStartTimeHour == null && trainingStartTimeMinute != null)
 					|| (trainingStartTimeHour != null && trainingStartTimeMinute == null)) {
-				String trainingStartTImeErrorMsg = messageUtil.getMessage(Constants.INPUT_INVALID,
+				String trainingStartTimeErrorMsg = messageUtil.getMessage(Constants.INPUT_INVALID,
 						new String[] { "出勤時間" });
-				errorMessages.add(trainingStartTImeErrorMsg);
+				errorMessages.add(trainingStartTimeErrorMsg);
 			}
 
 			// 退勤時刻整形
 			TrainingTime trainingEndTime = null;
 
 			// 角田 智哉 Task.26
-			Integer trainingEndTimeHour = dailyAttendanceForm.getTrainingStartTimeHour();
-			Integer trainingEndTimeMinute = dailyAttendanceForm.getTrainingStartTimeHour();
+			Integer trainingEndTimeHour = dailyAttendanceForm.getTrainingEndTimeHour();
+			Integer trainingEndTimeMinute = dailyAttendanceForm.getTrainingEndTimeMinute();
 			// 退勤「時」もしくは「分」が未入力の場合は、空文字を挿入。それ以外は入力パラメータをセット
 			if (trainingEndTimeHour == null || trainingEndTimeMinute == null) {
 				String endTime = "";
@@ -341,13 +341,34 @@ public class StudentAttendanceService {
 				tStudentAttendance.setTrainingEndTime(trainingEndTime.getFormattedString());
 			}
 			// 角田 智哉 Task.27
-			// 出勤時間（時）、出勤時間（分）の一方が入力有り＆もう一方が入力なしの場合、エラーメッセージを追加
+			// 退勤時間（時）、退勤時間（分）の一方が入力有り＆もう一方が入力なしの場合、エラーメッセージを追加
 			if ((trainingEndTimeHour == null && trainingEndTimeMinute != null)
 					|| (trainingEndTimeHour != null && trainingEndTimeMinute == null)) {
-				String trainingEndTImeErrorMsg = messageUtil.getMessage(Constants.INPUT_INVALID,
-						new String[] { "退勤時間" });
-				errorMessages.add(trainingEndTImeErrorMsg);
+				String inputInvalid = messageUtil.getMessage(Constants.INPUT_INVALID, new String[] { "退勤時間" });
+				errorMessages.add(inputInvalid);
 			}
+			// 角田 智哉 Task.27
+			// 出勤時間に入力なし＆退勤時間に入力ありの場合、エラーメッセージを追加
+			if (tStudentAttendance.getTrainingStartTime() == "" && tStudentAttendance.getTrainingEndTime() != "") {
+				String punchInEmpty = messageUtil.getMessage(Constants.VALID_KEY_ATTENDANCE_PUNCHINEMPTY);
+				errorMessages.add(punchInEmpty);
+			}
+			// 角田 智哉 Task.27
+			// 未入力の場合は処理を続行
+			if (trainingStartTime == null || trainingEndTime == null) {
+				// 出勤時間 ＞ 退勤時間 の場合、エラーメッセージを追加
+			} else if (((trainingStartTimeHour - trainingEndTimeHour) > 0)
+					|| ((trainingStartTimeHour == trainingEndTimeHour)
+							&& (trainingStartTimeMinute > trainingEndTimeMinute))) {
+				String trainningTimeRange = messageUtil.getMessage(Constants.VALID_KEY_ATTENDANCE_TRAININGTIMERANGE,
+						new String[] { tStudentAttendance.getTrainingEndTime(),
+								tStudentAttendance.getTrainingStartTime() });
+				errorMessages.add(trainningTimeRange);
+
+			} else {
+
+			}
+
 			// 中抜け時間
 			tStudentAttendance.setBlankTime(dailyAttendanceForm.getBlankTime());
 			// 遅刻早退ステータス
@@ -357,14 +378,35 @@ public class StudentAttendanceService {
 						trainingEndTime);
 				tStudentAttendance.setStatus(attendanceStatusEnum.code);
 			}
+			// 角田 智哉 Task.27
+			// 未入力の場合は処理を続行
+			if (tStudentAttendance.getTrainingStartTime() == "" || tStudentAttendance.getTrainingEndTime() == ""
+					|| tStudentAttendance.getBlankTime() == null) {
+				// 出勤時間、退勤時間、中抜け時間のいずれも入力されている場合に実行
+			} else {
+				// 中抜け時間を取得
+				Integer blankTime = tStudentAttendance.getBlankTime();
+				// 比較用の出勤時間、退勤時間をリストから取得
+				TrainingTime compareTrainingStartTime = new TrainingTime(tStudentAttendance.getTrainingStartTime());
+				TrainingTime compareTrainingEndTime = new TrainingTime(tStudentAttendance.getTrainingEndTime());
+				// 比較用の出勤時間、退勤時間を分に変換し、勤務合計時間を算出
+				Integer compareTotalTainingMinute = (compareTrainingEndTime.getHour() * 60)
+						+ compareTrainingEndTime.getMinute() - (compareTrainingStartTime.getHour() * 60)
+						+ compareTrainingStartTime.getMinute();
+				// 勤務合計時間よりも中抜け時間のほうが大きい場合は、エラーメッセージを格納
+				if (blankTime > compareTotalTainingMinute) {
+					String blankTimeError = messageUtil.getMessage(Constants.VALID_KEY_ATTENDANCE_BLANKTIMEERROR);
+					errorMessages.add(blankTimeError);
+				}
+			}
+
 			// 備考
 			tStudentAttendance.setNote(dailyAttendanceForm.getNote());
 			// 角田 智哉 Task.27
 			// 100文字以上入力された場合はエラーメッセージを追加
 			if (tStudentAttendance.getNote().length() > 100) {
-				String NoteErrorMsg = messageUtil.getMessage(Constants.VALID_KEY_MAXLENGTH,
-						new String[] { "備考", "100" });
-				errorMessages.add(NoteErrorMsg);
+				String maxLength = messageUtil.getMessage(Constants.VALID_KEY_MAXLENGTH, new String[] { "備考", "100" });
+				errorMessages.add(maxLength);
 			}
 			// 更新者と更新日時
 			tStudentAttendance.setLastModifiedUser(loginUserDto.getLmsUserId());

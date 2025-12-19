@@ -10,6 +10,12 @@
 	<th:block th:if="${session.loginUserDto.role == '0001'}">
 		<h2>勤怠管理</h2>
 	</th:block>
+		<!-- エラーメッセージ -->
+	<th:block th:if="${not #strings.isEmpty(error)}" id="error">
+		<ul style="padding-left: 0; list-style: none;">
+			<li><span th:text="'*' + '&nbsp' + ${error}" class="help-inline error"></span></li>
+		</ul>
+	</th:block>
 
 	<th:block th:if="${session.loginUserDto.role != '0001'}">
 		<h2>勤怠管理 <small>( [[${attendanceForm.userName}]] )</small></h2>
