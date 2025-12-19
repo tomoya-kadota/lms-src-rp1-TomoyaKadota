@@ -439,23 +439,20 @@ public class StudentAttendanceService {
 	}
 
 	/**
-	 * @author 角田智哉 -Task.26
+	 * Mapper実行結果として未入力カウント数が0より大きいかどうか判定
+	 * 
+	 * @author 角田智哉 -Task.25
 	 * @param lmsUserId ログイン時のユーザーID
 	 * @return 未入力件数判定結果
 	 */
-	public Boolean notEnterCount(Integer lmsUserId) {
+	public Boolean check(Integer lmsUserId) {
 
 		// 本日の研修日
 		Date trainingDate = attendanceUtil.getTrainingDate();
 		short deleteFlg = Constants.DB_FLG_FALSE;
 		Integer count = tStudentAttendanceMapper.notEnterCount(lmsUserId, deleteFlg, trainingDate);
 		// 未入力カウント数が0より大きいなら”true”を返す
-		if (count > 0) {
-			return true;
-		}
-		// 未入力カウント数が0以下なら”false”を返す
-		return false;
-
+		return count > 0;
 	}
 
 }

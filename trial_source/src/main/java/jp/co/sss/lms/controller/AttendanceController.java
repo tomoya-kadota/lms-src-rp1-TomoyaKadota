@@ -49,7 +49,7 @@ public class AttendanceController {
 
 		// 角田智哉 - Task.25
 		// 判定結果の取得
-		boolean notEnterFlg = studentAttendanceService.notEnterCount(loginUserDto.getLmsUserId());
+		boolean notEnterFlg = studentAttendanceService.check(loginUserDto.getLmsUserId());
 		model.addAttribute("notEnterFlg", notEnterFlg);
 
 		return "attendance/detail";

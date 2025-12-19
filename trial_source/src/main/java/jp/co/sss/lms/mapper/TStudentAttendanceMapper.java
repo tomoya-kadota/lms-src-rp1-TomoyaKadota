@@ -65,8 +65,9 @@ public interface TStudentAttendanceMapper {
 	 */
 	Boolean update(TStudentAttendance tStudentAttendance);
 
-	// 角田智哉 - Task.25
 	/**
+	 * 
+	 * @author 角田智哉 -Task.25
 	 * @param lmsUserId
 	 * @param deleteFlag
 	 * @param trainingdate
