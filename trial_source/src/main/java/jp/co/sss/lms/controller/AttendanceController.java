@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -14,6 +15,7 @@ import jp.co.sss.lms.dto.AttendanceManagementDto;
 import jp.co.sss.lms.dto.LoginUserDto;
 import jp.co.sss.lms.form.AttendanceForm;
 import jp.co.sss.lms.service.StudentAttendanceService;
+import jp.co.sss.lms.util.AttendanceUtil;
 import jp.co.sss.lms.util.Constants;
 
 /**
@@ -29,6 +31,8 @@ public class AttendanceController {
 	private StudentAttendanceService studentAttendanceService;
 	@Autowired
 	private LoginUserDto loginUserDto;
+	@Autowired
+	private AttendanceUtil attendanceUtil;
 
 	/**
 	 * 勤怠管理画面 初期表示
@@ -134,14 +138,18 @@ public class AttendanceController {
 	 * @throws ParseException
 	 */
 	@RequestMapping(path = "/update", params = "complete", method = RequestMethod.POST)
-	public String complete(AttendanceForm attendanceForm, Model model, BindingResult result) throws ParseException {
+	public String complete(@ModelAttribute AttendanceForm attendanceForm, Model model, BindingResult result)
+			throws ParseException {
 
 		// 更新
-		List<String> message = studentAttendanceService.update(attendanceForm);
+		String message = studentAttendanceService.update(attendanceForm, result);
 		// 角田 智哉 - Task.27
-		// 完了メッセージが格納されていない場合は、エラーメッセージをスコープに格納し、勤怠情報直接変更画面へ遷移
-		if (!message.contains("勤怠情報の登録が完了しました。")) {
-			return this.update(model.addAttribute("error", message));
+		// エラーが含まれている場合は、勤怠情報直接変更画面へ遷移
+		if (result.hasErrors()) {
+			attendanceForm.setBlankTimes(attendanceUtil.setBlankTime());
+			attendanceForm.setTrainingTimeHour(attendanceUtil.setTrainingTimeHour());
+			attendanceForm.setTrainingTimeMinute(attendanceUtil.setTrainingTimeMinute());
+			return "attendance/update";
 		} else {
 			// エラー無の場合は完了メッセージをスコープに格納する
 			model.addAttribute("message", message);
