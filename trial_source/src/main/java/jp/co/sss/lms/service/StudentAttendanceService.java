@@ -284,13 +284,14 @@ public class StudentAttendanceService {
 		// 入力された情報を更新用のエンティティに移し替え
 		Date date = new Date();
 		for (DailyAttendanceForm dailyAttendanceForm : attendanceForm.getAttendanceList()) {
-
+			Integer listCount = attendanceForm.getAttendanceList().indexOf(dailyAttendanceForm);
 			// 更新用エンティティ作成
 			TStudentAttendance tStudentAttendance = new TStudentAttendance();
 			// 日次勤怠フォームから更新用のエンティティにコピー
 			BeanUtils.copyProperties(dailyAttendanceForm, tStudentAttendance);
 			// 研修日付
 			tStudentAttendance.setTrainingDate(dateUtil.parse(dailyAttendanceForm.getTrainingDate()));
+
 			// 現在の勤怠情報リストのうち、研修日が同じものを更新用エンティティで上書き
 			for (TStudentAttendance entity : tStudentAttendanceList) {
 				if (entity.getTrainingDate().equals(tStudentAttendance.getTrainingDate())) {
@@ -318,8 +319,16 @@ public class StudentAttendanceService {
 			// 出勤時間（時）、出勤時間（分）の一方が入力有り＆もう一方が入力なしの場合、エラーメッセージを追加
 			if ((trainingStartTimeHour == null && trainingStartTimeMinute != null)
 					|| (trainingStartTimeHour != null && trainingStartTimeMinute == null)) {
-				result.addError(new FieldError(result.getObjectName(), "DailyAttendanceForm",
-						messageUtil.getMessage(Constants.INPUT_INVALID, new String[] { "出勤時間" })));
+				if (trainingStartTimeHour == null) {
+					result.addError(new FieldError(result.getObjectName(),
+							"attendanceList[" + listCount + "].trainingStartTimeHour",
+							messageUtil.getMessage(Constants.INPUT_INVALID, new String[] { "出勤時間" })));
+				}
+				if (trainingStartTimeMinute == null) {
+					result.addError(new FieldError(result.getObjectName(),
+							"attendanceList[" + listCount + "].trainingStartTimeMinute",
+							messageUtil.getMessage(Constants.INPUT_INVALID, new String[] { "出勤時間" })));
+				}
 			}
 
 			// 退勤時刻整形
@@ -341,14 +350,25 @@ public class StudentAttendanceService {
 			// 退勤時間（時）、退勤時間（分）の一方が入力有り＆もう一方が入力なしの場合、エラーメッセージを追加
 			if ((trainingEndTimeHour == null && trainingEndTimeMinute != null)
 					|| (trainingEndTimeHour != null && trainingEndTimeMinute == null)) {
-				result.addError(new FieldError(result.getObjectName(), "DailyAttendanceForm",
-						messageUtil.getMessage(Constants.INPUT_INVALID, new String[] { "退勤時間" })));
+				if (trainingEndTimeHour == null) {
+
+					result.addError(new FieldError(result.getObjectName(),
+							"attendanceList[" + listCount + "].trainingEndTimeHour",
+							messageUtil.getMessage(Constants.INPUT_INVALID, new String[] { "退勤時間" })));
+				}
+				if (trainingEndTimeMinute == null) {
+
+					result.addError(new FieldError(result.getObjectName(),
+							"attendanceList[" + listCount + "].trainingEndTimeMinute",
+							messageUtil.getMessage(Constants.INPUT_INVALID, new String[] { "退勤時間" })));
+				}
 
 			}
 			// 角田 智哉 Task.27
 			// 出勤時間に入力なし＆退勤時間に入力ありの場合、エラーメッセージを追加
 			if (tStudentAttendance.getTrainingStartTime() == "" && tStudentAttendance.getTrainingEndTime() != "") {
-				result.addError(new FieldError(result.getObjectName(), "DailyAttendanceForm",
+				result.addError(new FieldError(result.getObjectName(),
+						"attendanceList[" + listCount + "].trainingStartTimeHour",
 						messageUtil.getMessage(Constants.VALID_KEY_ATTENDANCE_PUNCHINEMPTY)));
 			}
 			// 角田 智哉 Task.27
@@ -358,10 +378,10 @@ public class StudentAttendanceService {
 			} else if (((trainingStartTimeHour - trainingEndTimeHour) > 0)
 					|| ((trainingStartTimeHour == trainingEndTimeHour)
 							&& (trainingStartTimeMinute > trainingEndTimeMinute))) {
-				result.addError(new FieldError(result.getObjectName(), "DailyAttendanceForm",
-						messageUtil.getMessage(messageUtil.getMessage(Constants.VALID_KEY_ATTENDANCE_TRAININGTIMERANGE,
-								new String[] { tStudentAttendance.getTrainingEndTime(),
-										tStudentAttendance.getTrainingStartTime() }))));
+				result.addError(new FieldError(result.getObjectName(),
+						"attendanceList[" + listCount + "].trainingStartTimeHour",
+						messageUtil.getMessage(Constants.VALID_KEY_ATTENDANCE_TRAININGTIMERANGE,
+								new String[] { tStudentAttendance.getTrainingEndTime() })));
 			} else {
 
 			}
@@ -392,8 +412,9 @@ public class StudentAttendanceService {
 						+ compareTrainingStartTime.getMinute();
 				// 勤務合計時間よりも中抜け時間のほうが大きい場合は、エラーメッセージを格納
 				if (blankTime > compareTotalTainingMinute) {
-					result.addError(new FieldError(result.getObjectName(), "DailyAttendanceForm",
-							messageUtil.getMessage(Constants.VALID_KEY_ATTENDANCE_BLANKTIMEERROR)));
+					result.addError(
+							new FieldError(result.getObjectName(), "attendanceList[" + listCount + "].blankTime",
+									messageUtil.getMessage(Constants.VALID_KEY_ATTENDANCE_BLANKTIMEERROR)));
 				}
 			}
 
@@ -402,7 +423,7 @@ public class StudentAttendanceService {
 			// 角田 智哉 Task.27
 			// 100文字以上入力された場合はエラーメッセージを追加
 			if (tStudentAttendance.getNote().length() > 100) {
-				result.addError(new FieldError(result.getObjectName(), "DailyAttendanceForm",
+				result.addError(new FieldError(result.getObjectName(), "attendanceList[" + listCount + "].note",
 						messageUtil.getMessage(Constants.VALID_KEY_MAXLENGTH, new String[] { "備考", "100" })));
 			}
 			// 更新者と更新日時

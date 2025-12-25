@@ -44,6 +44,7 @@ public class DailyAttendanceForm {
 	/** ステータス */
 	private String status;
 	/** 備考 */
+	// 角田 智哉 -Task.27
 	@Size(max = 100)
 	private String note;
 	/** セクション名 */
